@@ -1,0 +1,42 @@
+# ===============================
+# DSLAB EXAM MODE (SAFE)
+# Keeps .local + SSH working
+# ===============================
+
+# Remove old rules to ensure clean slate
+netsh advfirewall firewall delete rule name="DSLAB-BLOCK-OUT" 2>$null
+netsh advfirewall firewall delete rule name="DSLAB-ALLOW-LAN" 2>$null
+netsh advfirewall firewall delete rule name="DSLAB-ALLOW-SSH" 2>$null
+netsh advfirewall firewall delete rule name="DSLAB-ALLOW-DNS" 2>$null
+netsh advfirewall firewall delete rule name="DSLAB-ALLOW-MDNS" 2>$null
+netsh advfirewall firewall delete rule name="DSLAB-ALLOW-LLMNR" 2>$null
+
+# Change Default Outbound Policy to BLOCK
+Set-NetFirewallProfile -Profile Domain,Public,Private -DefaultOutboundAction Block
+
+# Allow LAN Outbound (crucial for SSH responses, file shares, and control)
+netsh advfirewall firewall add rule name="DSLAB-ALLOW-LAN" `
+    dir=out action=allow `
+    remoteip=LocalSubnet profile=any
+
+# Allow DNS Outbound (so machine can resolve local hostnames)
+netsh advfirewall firewall add rule name="DSLAB-ALLOW-DNS" `
+    dir=out action=allow `
+    protocol=UDP remoteport=53 profile=any
+
+# Allow mDNS (.local)
+netsh advfirewall firewall add rule name="DSLAB-ALLOW-MDNS" `
+    dir=out action=allow `
+    protocol=UDP remoteport=5353 profile=any
+
+# Allow LLMNR
+netsh advfirewall firewall add rule name="DSLAB-ALLOW-LLMNR" `
+    dir=out action=allow `
+    protocol=UDP remoteport=5355 profile=any
+
+# Allow SSH Outbound Explicitly (Fail-safe for active connections)
+netsh advfirewall firewall add rule name="DSLAB-ALLOW-SSH" `
+    dir=out action=allow `
+    protocol=TCP localport=22 profile=any
+
+Write-Host "Internet BLOCKED. Default Outbound Action is set to Block."
