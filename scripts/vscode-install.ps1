@@ -1,6 +1,6 @@
 # Download VS Code
 $url = "https://update.code.visualstudio.com/latest/win32-x64-user/stable"
-$out = "C:\LAB\vscode_$(Get-Random).exe"
+$out = "$PSScriptRoot\vscode_$(Get-Random).exe"
 
 Invoke-WebRequest -Uri $url -OutFile $out
 

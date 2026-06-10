@@ -1,6 +1,6 @@
 # Download Python (official)
 $url = "https://www.python.org/ftp/python/3.12.2/python-3.12.2-amd64.exe"
-$out = "C:\LAB\python_$(Get-Random).exe"
+$out = "$PSScriptRoot\python_$(Get-Random).exe"
 
 Invoke-WebRequest -Uri $url -OutFile $out
 
