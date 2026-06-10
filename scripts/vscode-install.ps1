@@ -1,6 +1,6 @@
 # Download VS Code
 $url = "https://update.code.visualstudio.com/latest/win32-x64-user/stable"
-$out = "C:\DSLAB\vscode.exe"
+$out = "C:\DSLAB\vscode_$(Get-Random).exe"
 
 Invoke-WebRequest -Uri $url -OutFile $out
 

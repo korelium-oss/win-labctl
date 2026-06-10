@@ -1,0 +1,4 @@
+# Wake-on-LAN MAC list template
+# format: MAC_ADDRESS   # machine
+00:11:22:33:44:55   # pc-1
+66:77:88:99:AA:BB   # pc-2

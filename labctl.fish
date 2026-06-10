@@ -1,6 +1,6 @@
-if status is-interactive
-    # Load Configuration
-    set config_file (status dirname)/lab_vars.fish
+# Load Configuration
+    set -g LAB_BASE_DIR (status dirname)
+    set config_file $LAB_BASE_DIR/lab_vars.fish
     if test -f $config_file
         source $config_file
     else
@@ -29,8 +29,33 @@ if status is-interactive
                     ssh $LAB_USER@\$target_host \"shutdown /r /t 0\"
                 case lock
                     ssh $LAB_USER@\$target_host \"rundll32.exe user32.dll,LockWorkStation\"
+                case wake
+                    set mac_file $LAB_BASE_DIR/macs.txt
+                    if test -f \$mac_file
+                        set mac (grep -i \"\$target_host\" \$mac_file | grep -v '^#' | awk '{print \$1}')
+                        if test -n \"\$mac\"
+                            wakeonlan \$mac
+                            echo \"Waking \$target_host (\$mac)\"
+                        else
+                            echo \"MAC address for \$target_host not found in \$mac_file\"
+                        end
+                    else
+                        echo \"⚠️ MAC address file not found: \$mac_file\"
+                    end
+                case install-code
+                    echo \">>> Installing VSCode on \$target_host\"
+                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
+                    scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/vscode-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\vscode-install.ps1\"
+                    echo \"✅ VSCode installation finished on \$target_host\"
+                case install-python
+                    echo \">>> Installing Python on \$target_host\"
+                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
+                    scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/python-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\python-install.ps1\"
+                    echo \"✅ Python installation finished on \$target_host\"
                 case '*'
-                    echo \"Usage: $LAB_CMD_PREFIX$i [down|reboot|lock]\"
+                    echo \"Usage: $LAB_CMD_PREFIX$i [down|reboot|lock|wake|install-code|install-python]\"
             end
         end
         "
@@ -104,11 +129,24 @@ if status is-interactive
                 wait
                 echo \"[*] Shutdown commands sent.\"
 
+            case wake
+                echo \"[*] Sending Wake-on-LAN packets...\"
+                set mac_file $LAB_BASE_DIR/macs.txt
+                if test -f \$mac_file
+                    grep -v '^#' \$mac_file | awk '{print \$1}' | while read -l mac
+                        wakeonlan \$mac
+                    end
+                else
+                    echo \"⚠️ MAC address file not found: \$mac_file\"
+                end
+                echo \"[*] Magic packets sent.\"
+
             case '*'
                 echo \"Usage:\"
                 echo \"  $LAB_CMD_PREFIX-all status\"
                 echo \"  $LAB_CMD_PREFIX-all reboot\"
                 echo \"  $LAB_CMD_PREFIX-all down\"
+                echo \"  $LAB_CMD_PREFIX-all wake\"
                 echo \"  $LAB_CMD_PREFIX-reset-all\"
         end
     end
@@ -207,4 +245,42 @@ if status is-interactive
         echo \"✅ Internet ENABLED on \$target_host\"
     end
     "
-end
+
+    # ==================================================
+    # SOFTWARE INSTALLATION CONTROLS
+    # ==================================================
+    eval "
+    function $LAB_CMD_PREFIX-code-install --argument n
+        if test -n \"\$n\"
+            set target_hosts \$n
+        else
+            set target_hosts \$LAB_HOSTS
+        end
+
+        for i in \$target_hosts
+            set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
+            echo \">>> Installing VSCode on \$target_host\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/vscode-install.ps1\"
+            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\vscode-install.ps1\"
+            echo \"✅ VSCode installation finished on \$target_host\"
+        end
+    end
+
+    function $LAB_CMD_PREFIX-python-install --argument n
+        if test -n \"\$n\"
+            set target_hosts \$n
+        else
+            set target_hosts \$LAB_HOSTS
+        end
+
+        for i in \$target_hosts
+            set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
+            echo \">>> Installing Python on \$target_host\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/python-install.ps1\"
+            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\python-install.ps1\"
+            echo \"✅ Python installation finished on \$target_host\"
+        end
+    end
+    "
