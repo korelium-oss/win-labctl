@@ -1,4 +1,4 @@
-# DSLAB Persistent Tunnel
+# LAB Persistent Tunnel
 
 $PORT = 2207   # CHANGE PER PC
 

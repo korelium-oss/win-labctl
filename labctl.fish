@@ -44,15 +44,15 @@
                     end
                 case install-code
                     echo \">>> Installing VSCode on \$target_host\"
-                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-                    scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/vscode-install.ps1\"
-                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\vscode-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+                    scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/LAB/vscode-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\vscode-install.ps1\"
                     echo \"✅ VSCode installation finished on \$target_host\"
                 case install-python
                     echo \">>> Installing Python on \$target_host\"
-                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-                    scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/python-install.ps1\"
-                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\python-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+                    scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/LAB/python-install.ps1\"
+                    ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\python-install.ps1\"
                     echo \"✅ Python installation finished on \$target_host\"
                 case '*'
                     echo \"Usage: $LAB_CMD_PREFIX$i [down|reboot|lock|wake|install-code|install-python]\"
@@ -166,14 +166,14 @@
             set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
             echo \">>> Deploying reset to \$target_host\"
 
-            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-            scp \$LAB_SCRIPTS_DIR/reset.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/reset.ps1\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/reset.ps1 $LAB_USER@\$target_host:\"C:/LAB/reset.ps1\"
             or begin
                 echo \"COPY FAIL \$target_host\"
                 continue
             end
 
-            ssh $LAB_USER@\$target_host \"schtasks /create /tn DSLAB-RESET /sc onlogon /ru SYSTEM /rl HIGHEST /tr \\\"cmd /c start /min powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\reset.ps1\\\" /f\"
+            ssh $LAB_USER@\$target_host \"schtasks /create /tn LAB-RESET /sc onlogon /ru SYSTEM /rl HIGHEST /tr \\\"cmd /c start /min powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\LAB\\\\reset.ps1\\\" /f\"
             or begin
                 echo \"TASK FAIL \$target_host\"
                 continue
@@ -190,15 +190,15 @@
             set target_host \"$LAB_HOST_PREFIX$i$LAB_HOST_SUFFIX\"
             echo \">>> Deploying reset to \$target_host\"
 
-            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-            scp \$LAB_SCRIPTS_DIR/reset.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/reset.ps1\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/reset.ps1 $LAB_USER@\$target_host:\"C:/LAB/reset.ps1\"
             or begin
                 echo \"COPY FAIL \$target_host\"
                 return
             end
 
-            ssh $LAB_USER@\$target_host \"schtasks /delete /tn DSLAB-RESET /f 2>nul\"
-            ssh $LAB_USER@\$target_host \"schtasks /create /tn DSLAB-RESET /sc onlogon /ru SYSTEM /rl HIGHEST /tr \\\"cmd /c start /min powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\reset.ps1\\\" /f\"
+            ssh $LAB_USER@\$target_host \"schtasks /delete /tn LAB-RESET /f 2>nul\"
+            ssh $LAB_USER@\$target_host \"schtasks /create /tn LAB-RESET /sc onlogon /ru SYSTEM /rl HIGHEST /tr \\\"cmd /c start /min powershell -NoProfile -ExecutionPolicy Bypass -File C:\\\\LAB\\\\reset.ps1\\\" /f\"
             or begin
                 echo \"TASK FAIL \$target_host\"
                 return
@@ -212,13 +212,13 @@
     eval "
     function $LAB_CMD_PREFIX-reset-off --argument n
         set target_host \"$LAB_HOST_PREFIX\$n$LAB_HOST_SUFFIX\"
-        ssh $LAB_USER@\$target_host \"schtasks /change /tn DSLAB-RESET /disable\"
+        ssh $LAB_USER@\$target_host \"schtasks /change /tn LAB-RESET /disable\"
         echo \"Reset DISABLED on \$target_host\"
     end
 
     function $LAB_CMD_PREFIX-reset-on --argument n
         set target_host \"$LAB_HOST_PREFIX\$n$LAB_HOST_SUFFIX\"
-        ssh $LAB_USER@\$target_host \"schtasks /change /tn DSLAB-RESET /enable\"
+        ssh $LAB_USER@\$target_host \"schtasks /change /tn LAB-RESET /enable\"
         echo \"Reset ENABLED on \$target_host\"
     end
     "
@@ -230,18 +230,18 @@
     function $LAB_CMD_PREFIX-net-off --argument n
         set target_host \"$LAB_HOST_PREFIX\$n$LAB_HOST_SUFFIX\"
         echo \">>> Blocking internet on \$target_host\"
-        ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-        scp \$LAB_SCRIPTS_DIR/net-off.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/net-off.ps1\"
-        ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\net-off.ps1\"
+        ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+        scp \$LAB_SCRIPTS_DIR/net-off.ps1 $LAB_USER@\$target_host:\"C:/LAB/net-off.ps1\"
+        ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\net-off.ps1\"
         echo \"🚫 Internet DISABLED on \$target_host\"
     end
 
     function $LAB_CMD_PREFIX-net-on --argument n
         set target_host \"$LAB_HOST_PREFIX\$n$LAB_HOST_SUFFIX\"
         echo \">>> Restoring internet on \$target_host\"
-        ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-        scp \$LAB_SCRIPTS_DIR/net-on.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/net-on.ps1\"
-        ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\net-on.ps1\"
+        ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+        scp \$LAB_SCRIPTS_DIR/net-on.ps1 $LAB_USER@\$target_host:\"C:/LAB/net-on.ps1\"
+        ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\net-on.ps1\"
         echo \"✅ Internet ENABLED on \$target_host\"
     end
     "
@@ -260,9 +260,9 @@
         for i in \$target_hosts
             set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
             echo \">>> Installing VSCode on \$target_host\"
-            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-            scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/vscode-install.ps1\"
-            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\vscode-install.ps1\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/vscode-install.ps1 $LAB_USER@\$target_host:\"C:/LAB/vscode-install.ps1\"
+            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\vscode-install.ps1\"
             echo \"✅ VSCode installation finished on \$target_host\"
         end
     end
@@ -277,9 +277,9 @@
         for i in \$target_hosts
             set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
             echo \">>> Installing Python on \$target_host\"
-            ssh $LAB_USER@\$target_host \"mkdir C:\\\\DSLAB 2>nul\"
-            scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/DSLAB/python-install.ps1\"
-            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\DSLAB\\\\python-install.ps1\"
+            ssh $LAB_USER@\$target_host \"mkdir C:\\\\LAB 2>nul\"
+            scp \$LAB_SCRIPTS_DIR/python-install.ps1 $LAB_USER@\$target_host:\"C:/LAB/python-install.ps1\"
+            ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\LAB\\\\python-install.ps1\"
             echo \"✅ Python installation finished on \$target_host\"
         end
     end
