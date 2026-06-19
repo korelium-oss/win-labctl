@@ -36,6 +36,23 @@ function $LAB_CMD_PREFIX-python-install --argument n
     end
 end
 
+function $LAB_CMD_PREFIX-python-libs-install --argument n
+    if test -n \"\$n\"
+        set target_hosts \$n
+    else
+        set target_hosts \$LAB_HOSTS
+    end
+
+    for i in \$target_hosts
+        set target_host \"$LAB_HOST_PREFIX\$i$LAB_HOST_SUFFIX\"
+        echo \">>> Installing Python Libraries on \$target_host\"
+        ssh $LAB_USER@\$target_host \"mkdir C:\\\\$LAB_CMD_PREFIX 2>nul\"
+        scp \$LAB_SCRIPTS_DIR/python-libs-install.ps1 $LAB_USER@\$target_host:\"C:/$LAB_CMD_PREFIX/python-libs-install.ps1\"
+        ssh $LAB_USER@\$target_host \"powershell -ExecutionPolicy Bypass -File C:\\\\$LAB_CMD_PREFIX\\\\python-libs-install.ps1\"
+        echo \"✅ Python libraries installation finished on \$target_host\"
+    end
+end
+
 function $LAB_CMD_PREFIX-edge-remove --argument n
     set target_host \"$LAB_HOST_PREFIX\$n$LAB_HOST_SUFFIX\"
     echo \">>> Removing Edge on \$target_host\"
